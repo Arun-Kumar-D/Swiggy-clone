@@ -1,0 +1,32 @@
+{
+  "name": "react",
+  "version": "1.0.0",
+  "description": "react practice",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arun-Kumar-D/React.git"
+  },
+  "keywords": [
+    "react",
+    "react-dom"
+  ],
+  "author": "ak",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Arun-Kumar-D/React/issues"
+  },
+  "homepage": "https://github.com/Arun-Kumar-D/React#readme",
+  "devDependencies": {
+    "parcel": "^2.10.2"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "browserslist":[
+    "last 2 versions"
+  ]
+}
