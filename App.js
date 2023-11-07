@@ -7,6 +7,9 @@ const heading = React.createElement(
       "hello world from React" 
     );
 
+const jsxheading = <h1 id="heading"> hello from react jsx</h1>
+const Component1 = () => (<h1 id="heading">functional component</h1>);
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
-root.render(heading);
+root.render(jsxheading);
+root.render(<Component1/>);
