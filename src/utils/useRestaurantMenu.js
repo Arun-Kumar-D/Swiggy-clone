@@ -8,7 +8,7 @@ const useRestaurantMenu = (resId) => {
         fetchRestaurantMenu();
     }, [])
     async function fetchRestaurantMenu() {
-        const resource = generateProxyUrl(RESTAURANTS_MENU_API + resId)
+        const resource = RESTAURANTS_MENU_API + resId
         const data = await fetch(resource);
         const json = await data.json()
 

@@ -1,30 +1,35 @@
-import { CDN_URL } from "../utils/constants";
-
+import { Link } from 'react-router-dom';
+import { CDN_URL } from '../utils/constants'
+import { useContext } from 'react';
+import UserContext from '../utils/UserContext';
 const RestaurantCard = (props) => {
-  const { resData } = props;
+    const { id, name, avgRating, cuisines, areaName, sla, cloudinaryImageId } = props?.restaurantData?.info
+    const data = useContext(UserContext)
+    return (<Link to={`/restaurant/${id}`} key={id}>
+        <div data-testid="resCard" className="hover:shadow-lg m-2 p-4 w-[340px]" >
+            <img className="w-full h-[200px] rounded-xl object-cover" src={CDN_URL + cloudinaryImageId} alt="restaurant-logo" />
+            <div className="restaurant-details">
+                <div className="py-4 font-bold">{name}</div>
+                <div className="flex justify-between font-semibold">
+                    <div className="rating">{avgRating}</div>
+                    <div>{sla.slaString}</div>
+                </div>
+                <div className="py-1 text-sm font-light truncate">{cuisines.join(", ")}</div>
+                <div className="py-1 text-sm font-light truncate">{areaName}</div>
+                {/* <div>{data?.loggedInUser}</div> */}
+            </div>
+        </div>
+    </Link>)
+}
 
-  const { cloudinaryImageId, name, cuisines, avgRating, costForTwo } =
-    resData?.info;
+// Higher order component
 
-    console.log(resData.info);
-  const { deliveryTime } = resData?.info?.sla;
-  return (
-    <div
-      className="m-4 p-4 w-[250px] rounded-lg bg-gray-100 hover:bg-gray-300"
-      
-    >
-      <img
-        className="rounded-lg"
-        src={CDN_URL + cloudinaryImageId}
-        alt="restaurant-logo"
-      />
-      <h3 className="font-bold py-4 text-lg">{name}</h3>
-      <h4>{cuisines.join(", ")}</h4>
-      <h4>{avgRating} stars</h4>
-      <h4>{costForTwo}</h4>
-      <h4>{deliveryTime} Minutes</h4>
-    </div>
-  );
-};
-
-  export default RestaurantCard;
+export const withOpenLabel = (RestaurantCard) => {
+    return (props) => {
+        return (<div className="relative">
+            <label className="absolute py-1 px-2 text-xs text-white bg-green-600 rounded-lg top-4 left-4">Open</label>
+            <RestaurantCard {...props}/>
+        </div>)
+    }
+}
+export default RestaurantCard;

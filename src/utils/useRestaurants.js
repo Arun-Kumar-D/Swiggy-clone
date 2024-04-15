@@ -15,7 +15,7 @@ const useRestaurants = () => {
   }, []);
 
   async function fetchRestaurants() {
-    const resource = generateProxyUrl(RESTAURANTS_API.replace(DEFAULT_LAT, lat).replace(DEFAULT_LNG, lng));
+    const resource = RESTAURANTS_API;
     const data = await fetch(resource);
     const json = await data.json();
 

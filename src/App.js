@@ -4,7 +4,6 @@ import Header from "./components/Header";
 import Body from "./components/Body";
 import Footer from "./components/Footer";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
-// import Help from './components/Help';
 const Help = lazy(() => import("./components/Help"));
 import Offer from "./components/Offer";
 import Error from "./components/Error";

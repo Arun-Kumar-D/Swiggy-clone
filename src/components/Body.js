@@ -1,95 +1,60 @@
-import RestaurantCard from "./RestaurantCard";
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import RestaurantCard, { withOpenLabel } from "./RestaurantCard";
+import { useContext, useState } from "react";
 import Shimmer from "./Shimmer";
-import useOnlineStatus from "../utils/useOnlineStatus";
-
+// import useOnlineStatus from "../utils/useOnlineStatus";
+import useRestaurants from "../utils/useRestaurants";
+import Cuisines from "./Cuisines";
+import ConfigContext from "../utils/ConfigContext";
 const Body = () => {
-  const [listOfRestaurants, setListOfRestaurants] = useState([]);
-  const [filteredRestaurant, setFilteredRestaurant] = useState([]);
-  const [searchText, setSearchText] = useState("");
-
-  //console.log(listOfRestaurants);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    const data = await fetch(
-      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=13.10863&lng=80.2060781&is-seo-homepage-enabled=true&page_type=DESKTOP_WEB_LISTING"
-    );
-    const swiggyJsonData = await data.json();
-    const restaurant_list = "restaurant_grid_listing";
-    const restaurantCard = swiggyJsonData?.data?.cards?.find(
-      (card) => card.card.card.id === restaurant_list
-    );
-    const restaurantData =
-      restaurantCard?.card?.card?.gridElements?.infoWithStyle?.restaurants;
-
-    setListOfRestaurants(restaurantData);
-    setFilteredRestaurant(restaurantData);
-  };
-
-  const onlineStatus = useOnlineStatus();
-  if(onlineStatus === false){
-    return(
-      <h1>Looks like your internet is not working!!!</h1>
-    );
-  }
-
-  return listOfRestaurants.length === 0 ? (
-    <Shimmer />
-  ) : (
-    <div className="body">
-      
-      <div className="filter flex">
-      <div className="m-2 p-2">
-          <input
-            type="text"
-            className="border border-solid border-black"
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-            }}
-          />
-          <button className="px-4 py-2 bg-green-100 m-4 rounded-lg"
-            onClick={() => {
-              const filteredRestaurants = listOfRestaurants.filter(
-                (restaurant) =>
-                  restaurant.info.name
-                    .toLowerCase()
-                    .includes(searchText.toLowerCase())
-              );
-              setFilteredRestaurant(filteredRestaurants);
-            }}
-          >
-            Search
-          </button>
+    // const isOnline = useOnlineStatus()
+    const { listOfRestaurants = [], filteredRestaurant = [], ResturantHeader, setListOfRestaurants, setFilteredRestaurants } = useRestaurants();
+    const [searchText, setSearchText] = useState("")
+    const RestaurantCardOpen = withOpenLabel(RestaurantCard)
+    const { searchEnabled } = useContext(ConfigContext)
+    // if (!isOnline) {
+    //     return <div><h1>Looks like you're offline. Please check your internet connection.</h1></div>
+    // }
+    if (listOfRestaurants?.length === 0) {
+        return <Shimmer />
+    }
+    return (<div className="flex flex-col items-center justify-center bg-gray-50">
+        {searchEnabled && <div className="flex items-center p-4 m-4">
+            <div className="search">
+                <input data-testid="searchInput" type="text" className="p-1 border border-black border-solid" value={searchText} onChange={(e) => { setSearchText(e.target.value) }} />
+                <button id="btnSearch" className="px-4 py-1 m-4 bg-green-100 rounded-md" onClick={() => {
+                    const filteredRest = listOfRestaurants.filter(restaurant => restaurant?.info?.name.toLowerCase().includes(searchText.toLowerCase()))
+                    if (filteredRest.length != 0) {
+                        setFilteredRestaurants(filteredRest)
+                    }
+                    else {
+                        setFilteredRestaurants(listOfRestaurants)
+                    }
+                }}>Search</button>
+            </div>
+            <div className="p-4 m-4">
+                <button className="px-4 py-2 bg-gray-100" onClick={() => {
+                    const filteredRestaurant = listOfRestaurants?.filter(restaurant => restaurant?.info?.avgRating >= 4)
+                    setListOfRestaurants(filteredRestaurant)
+                }}>Top Rated Restaurants</button>
+            </div>
+        </div>}
+        <div className="grid grid-cols-12 mt-20">
+            <div className="col-span-1"></div>
+            <div className="flex flex-wrap items-center justify-center col-span-10">
+                <Cuisines />
+            </div>
         </div>
-        <div className="flex items-center">
-        <button
-          className="px-4 py-2 bg-gray-100 rounded-lg"
-          onClick={() => {
-            const filteredList = listOfRestaurants.filter(
-              (restaurant) => restaurant.info.avgRating > 4
-            );
-            setFilteredRestaurant(filteredList);
-          }}
-        >
-          Top Rated Restaurant in your City
-        </button>
+        <div className="grid grid-cols-12">
+            <div className="col-span-1"></div>
+            <div className="col-span-10">
+                <h1 className="px-8 py-4 text-xl md:text-2xl font-bold">{ResturantHeader?.header?.title}</h1>
+                <div className="flex flex-wrap items-center justify-center ">
+                    {filteredRestaurant?.map((restaurant, index) => restaurant?.info?.isOpen ? <RestaurantCardOpen restaurantData={restaurant} key={index} /> : <RestaurantCard restaurantData={restaurant} key={index} />)}
+                </div>
+            </div>
+            <div className="col-span-1"></div>
         </div>
-        
-        
-      </div>
-      <div className="flex flex-wrap">
-        {filteredRestaurant.map((restaurant) => (
-          <Link key={restaurant.info.id} to={"/restaurant/"+restaurant.info.id}><RestaurantCard  resData={restaurant} /></Link>
-        ))}
-      </div>
-    </div>
-  );
-};
+    </div >)
+}
 
-  export default Body;
+export default Body;

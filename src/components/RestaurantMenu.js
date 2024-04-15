@@ -1,49 +1,39 @@
-import { useState, useEffect } from "react";
-import Shimmer from "./Shimmer";
-import { MENU_URL } from "../utils/constants";
-import { useParams } from "react-router-dom";
-import useRestaurantMenu from "../utils/useRestaurantMenu"
-import RestaurantCategory from "./RestaurantCategory";
+import { useParams } from 'react-router-dom';
+import Shimmer from './Shimmer'
+import useOnlineStatus from '../utils/useOnlineStatus';
+import useRestaurantMenu from '../utils/useRestaurantMenu';
+import RestaurantCategory from './RestaurantCategory';
+import { useState } from 'react';
 
-
-const RestaurantMenu = () =>{
-
-    const {resId} = useParams();
-    
-    const resInfo = useRestaurantMenu(resId);
-
-    const [showIndex, setShowIndex] = useState(1);
-    
-    if (resInfo === null) return (<Shimmer/>);
-
-    const { name, cuisines,costForTwoMessage } = resInfo?.cards[0]?.card?.card?.info
-    const { itemCards } = resInfo?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards[1]?.card?.card
-
-    console.log(resInfo?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards);
-
-    const categories = resInfo?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
-        (c) =>
-        c.card?.card?.["@type"] === 
-        "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory" 
-    );
-
-    console.log(categories);
+const RestaurantMenu = () => {
+    const isOnline = useOnlineStatus()
+    console.log(isOnline+ ":isOnline changed, so Restaurant Menu re-rendered")
+    const [openMenuIndex, setOpenMenuIndex] = useState(0)
+    const { resId } = useParams()
+    const { restaurantInfo, menuInfo } = useRestaurantMenu(resId)
+    if (menuInfo === null) {
+        return <Shimmer />
+    }
+    if(!isOnline) {
+        return <div>You're offline</div>
+    }
 
     return (
-        <div className="text-center">
-            <h1 className="font-bold my-6 text-2xl">{name}</h1>
-            <p className="font-bold text-lg">{cuisines && cuisines.join(", ")} - {costForTwoMessage}</p>
-            {
-                categories.map((category,index)=>(
-                    <RestaurantCategory 
-                    key={category?.card?.card?.title} 
-                    data={category?.card?.card} 
-                    showItems={index === showIndex ? true : false}
-                    setShowIndex = {()=>setShowIndex((curr)=>(curr === index ? null : index))} /> 
-                ))
-            }
+        <div className="px-8 flex flex-col justify-center items-center pt-20">
+            <div className="p-4 md:w-3/6 justify-start text-left">
+                <div className="font-bold">{restaurantInfo?.name}</div>
+                <p className="font-light text-sm text-gray-500">{restaurantInfo?.cuisines.join(", ")}</p>
+                <p className="font-light text-sm text-gray-500">{restaurantInfo?.areaName}, {restaurantInfo?.sla?.lastMileTravelString}</p>
+                <div className="my-2 text-gray-500 pb-2 border-bottom border-dashed border-gray-500">{restaurantInfo?.feeDetails?.message}</div>
+                <div className="text-lg font-bold">{restaurantInfo?.costForTwoMessage}</div>
+                <h2>Menu</h2>
+                <h3>{restaurantInfo?.title}</h3>
+            </div>
+            <div className="w-full md:p-4 md:w-3/6">
+                {menuInfo?.map((card, index) => <RestaurantCategory key={index} card={card?.card?.card} showItems={index === openMenuIndex} setOpenMenuIndex={() => setOpenMenuIndex(openMenuIndex === index ? null : index)} />)}
+            </div>
         </div>
-    );
-};
+    )
+}
 
-export default RestaurantMenu;
+export default RestaurantMenu
