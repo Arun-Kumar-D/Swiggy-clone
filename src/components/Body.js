@@ -17,7 +17,7 @@ const Body = () => {
     if (listOfRestaurants?.length === 0) {
         return <Shimmer />
     }
-    return (<div className="flex flex-col items-center justify-center bg-gray-50">
+    return (<div className="flex flex-col items-center justify-center bg-gray-50 pt-10">
         {searchEnabled && <div className="flex items-center p-4 m-4">
             <div className="search">
                 <input data-testid="searchInput" type="text" className="p-1 border border-black border-solid" value={searchText} onChange={(e) => { setSearchText(e.target.value) }} />
@@ -31,7 +31,7 @@ const Body = () => {
                     }
                 }}>Search</button>
             </div>
-            <div className="p-4 m-4">
+            <div className="p-4 m-4 pt-10">
                 <button className="px-4 py-2 bg-gray-100" onClick={() => {
                     const filteredRestaurant = listOfRestaurants?.filter(restaurant => restaurant?.info?.avgRating >= 4)
                     setListOfRestaurants(filteredRestaurant)
